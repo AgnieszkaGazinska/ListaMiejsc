@@ -125,26 +125,6 @@ Jako użytkownik, chcę otrzymać informację, gdy zapisanie lub pobranie danych
 | AndroidX Test (JUnit)      | Testy instrumentalne                                   | 1.2.1              |
 | Espresso Core              | Testy interfejsu użytkownika                           | 3.6.1              |
 
-
-
-
-
-
-| Nazwa                      | Przeznaczenie                                          | Wersja             |
-|----------------------------|--------------------------------------------------------|--------------------|
-| Android Studio             | Środowisko programistyczne (IDE)                       | 2024.2.1 (Ladybug) |
-| Windows 11                 | System operacyjny używany podczas tworzenia            | 24H2               |
-| Java                       | Język programowania                                    | 11                 |
-| Gradle                     | System budowania i zarządzania zależnościami           | 8.4                |
-| Firebase Authentication    | Logowanie, rejestracja i reset hasła                   | 23.0.0             |
-| Firebase Firestore         | Chmurowa baza danych do przechowywania miejsc          | 25.1.0             |
-| Google Maps SDK            | Komponent mapy w aplikacji                             | 18.2.0             |
-| Google Play Services       | Obsługa lokalizacji i map                              | 21.0.1 – 23.4.0             |
-
-**Dane źródłowe:**
-- `google-services.json`
-- `local.properties`
-
 ---
 
 ### b. Architektura uruchomieniowa
