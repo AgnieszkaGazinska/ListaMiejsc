@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -21,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -47,6 +49,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -80,24 +84,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 dodajMiejsceNaZnaczniku();
             }
         });
-        if (mAutoryzacja.getCurrentUser() == null) {
-            mAutoryzacja.signInAnonymously()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d("Auth", "Zalogowano anonimowo");
-                            zaladujMape();
-                        } else {
-                            Log.e("Auth", "Błąd logowania", task.getException());
-                            Toast.makeText(this, "Błąd logowania do Firebase", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        } else {
+        if (mAutoryzacja.getCurrentUser() != null) {
             zaladujMape();
+        } else {
+            startActivity(new Intent(this, LogowanieActivity.class));
+            finish();
         }
-        FirebaseFirestore.getInstance().collection("test")
-                .add(new HashMap<>())
-                .addOnSuccessListener(docRef -> Log.d("TEST", "Działa!"))
-                .addOnFailureListener(e -> Log.e("TEST", "Błąd Firestore", e));
+        Button btnWyloguj = findViewById(R.id.btnWyloguj);
+        btnWyloguj.setOnClickListener(v -> wylogujUzytkownika());
     }
 
     private void zaladujMape() {
@@ -152,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         bazaDanych.collection("miejsca")
+                .whereEqualTo("userId", mAutoryzacja.getCurrentUser().getUid())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (var doc : queryDocumentSnapshots) {
@@ -186,15 +181,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
     private void zaladujKategorieZBazy(LinearLayout kontenerCheckboxow, Runnable poZaladowniu) {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         bazaDanych.collection("kategorie")
                 .get()
                 .addOnSuccessListener(wynik -> {
                     kontenerCheckboxow.removeAllViews();
+
                     for (var dokument : wynik) {
                         String nazwa = dokument.getString("nazwa");
-                        Log.d("KATEGORIE", "Z Firestore: " + nazwa);
-                        if (nazwa != null) {
-                            dodajCheckboxKategorie(kontenerCheckboxow, nazwa);
+                        String autor = dokument.getString("userId");
+                        if (nazwa != null && (autor == null || autor.equals(uid))) {
+                            boolean moznaUsunac = autor != null && autor.equals(uid);
+                            dodajCheckboxKategorie(kontenerCheckboxow, nazwa, moznaUsunac);
                         }
                     }
                     if (poZaladowniu != null) {
@@ -241,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
             if (!juzIstnieje) {
-                dodajCheckboxKategorie(kontenerCheckboxow, nowaKategoria);
+                dodajCheckboxKategorie(kontenerCheckboxow, nowaKategoria, true);
                 zapiszNowaKategorie(nowaKategoria);
                 poleNowaKategoria.setText("");
             } else {
@@ -293,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         dialog.show();
     }
 
-    private void dodajCheckboxKategorie(LinearLayout kontener, String nazwa) {
+    private void dodajCheckboxKategorie(LinearLayout kontener, String nazwa, boolean moznaUsunac) {
         LinearLayout wiersz = new LinearLayout(this);
         wiersz.setOrientation(LinearLayout.HORIZONTAL);
 
@@ -301,29 +300,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         cb.setText(nazwa);
         cb.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
 
-        ImageButton btnUsun = new ImageButton(this);
-        btnUsun.setImageResource(android.R.drawable.ic_delete);
-        btnUsun.setBackgroundColor(Color.TRANSPARENT);
-        btnUsun.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Potwierdzenie")
-                    .setMessage("Czy na pewno chcesz usunąć kategorię \"" + nazwa + "\"?\nSpowoduje to usunięcie wszystkich miejsc w danej kategorii.")
-                    .setPositiveButton("Tak", (dialog, which) -> {
-                        usunKategorieZFirestore(nazwa, kontener, wiersz);
-                        usunMiejscaZKategorii(nazwa);
-                    })
-                    .setNegativeButton("Nie", null)
-                    .show();
-        });
-
         wiersz.addView(cb);
-        wiersz.addView(btnUsun);
+
+        if (moznaUsunac) {
+            ImageButton btnUsun = new ImageButton(this);
+            btnUsun.setImageResource(android.R.drawable.ic_delete);
+            btnUsun.setBackgroundColor(Color.TRANSPARENT);
+
+            btnUsun.setOnClickListener(v -> {
+                new AlertDialog.Builder(this)
+                        .setTitle("Potwierdzenie")
+                        .setMessage("Czy chcesz usunąć kategorię \"" + nazwa + "\"?\nUsunie to też wszystkie Twoje miejsca w tej kategorii.")
+                        .setPositiveButton("Tak", (dialog, which) -> {
+                            usunKategorieZFirestore(nazwa, kontener, wiersz);
+                            usunMiejscaZKategorii(nazwa);
+                        })
+                        .setNegativeButton("Nie", null)
+                        .show();
+            });
+
+            wiersz.addView(btnUsun);
+        }
+
         kontener.addView(wiersz);
     }
+
 
     private void usunKategorieZFirestore(String nazwaKategorii, LinearLayout kontener, LinearLayout wiersz) {
         bazaDanych.collection("miejsca")
                 .whereEqualTo("kategorie", nazwaKategorii)
+                .whereEqualTo("userId", FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     for (DocumentSnapshot dokument : querySnapshot) {
@@ -332,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     bazaDanych.collection("kategorie")
                             .whereEqualTo("nazwa", nazwaKategorii)
+                            .whereEqualTo("userId", FirebaseAuth.getInstance().getCurrentUser().getUid())
                             .get()
                             .addOnSuccessListener(query -> {
                                 for (var doc : query) {
@@ -373,6 +380,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         markeryZDokumentami.clear();
 
         bazaDanych.collection("miejsca")
+                .whereEqualTo("userId", FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .get()
                 .addOnSuccessListener(wynik -> {
                     for (var dokument : wynik) {
@@ -398,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 });
     }
-    private void zapiszMiejsceFirestore(String nazwa, String kategoria, LatLng latLng) {
+    /*private void zapiszMiejsceFirestore(String nazwa, String kategoria, LatLng latLng) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         String adres = "";
         try {
@@ -418,6 +426,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         miejsce.put("szerokoscGeo", latLng.latitude);
         miejsce.put("dlugoscGeo", latLng.longitude);
         miejsce.put("adres", adres);
+        miejsce.put("userId", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
         bazaDanych.collection("miejsca")
                 .add(miejsce)
@@ -439,12 +448,60 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Toast.makeText(MainActivity.this, "Błąd podczas zapisu", Toast.LENGTH_SHORT).show();
                 });
     }
+*/
+
+    private void zapiszMiejsceFirestore(String nazwa, String kategoria, LatLng latLng) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            String adres = "Adres nieznany";
+
+            try {
+                List<Address> adresy = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                if (adresy != null && !adresy.isEmpty()) {
+                    adres = adresy.get(0).getAddressLine(0);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String finalAdres = adres;
+            runOnUiThread(() -> {
+                Map<String, Object> miejsce = new HashMap<>();
+                miejsce.put("nazwa", nazwa);
+                miejsce.put("kategoria", kategoria);
+                miejsce.put("szerokoscGeo", latLng.latitude);
+                miejsce.put("dlugoscGeo", latLng.longitude);
+                miejsce.put("adres", finalAdres);
+                miejsce.put("userId", FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+                bazaDanych.collection("miejsca")
+                        .add(miejsce)
+                        .addOnSuccessListener(documentReference -> {
+                            Toast.makeText(MainActivity.this, "Miejsce dodane!", Toast.LENGTH_SHORT).show();
+                            odswiezMape();
+                            MarkerOptions opcje = new MarkerOptions()
+                                    .position(latLng)
+                                    .title(nazwa + " (" + kategoria + ")")
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                            Marker marker = mMapa.addMarker(opcje);
+                            if (marker != null) {
+                                markeryZDokumentami.put(marker, documentReference.getId());
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(MainActivity.this, "Błąd podczas zapisu", Toast.LENGTH_SHORT).show();
+                        });
+            });
+        });
+    }
 
     private void zapiszNowaKategorie(String kategoria) {
         if (kategoria == null || kategoria.isEmpty()) return;
 
         Map<String, Object> kat = new HashMap<>();
         kat.put("nazwa", kategoria);
+        kat.put("userId", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
         bazaDanych.collection("kategorie")
                 .add(kat)
@@ -512,5 +569,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Błąd ładowania szczegółów", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void wylogujUzytkownika() {
+        FirebaseAuth.getInstance().signOut();
+        startActivity(new Intent(this, LogowanieActivity.class));
+        finish();
     }
 }
