@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Ukryj dane Firebase
+app/google-services.json
