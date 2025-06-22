@@ -55,46 +55,46 @@ Jako użytkownik, chcę aby dane na mapie były widoczne tylko po zalogowaniu, a
 ### User Story 10: Komunikaty błędów
 Jako użytkownik, chcę otrzymywać jasne komunikaty o nieprawidłowych danych logowania lub błędach przy rejestracji, aby wiedzieć, co poprawić.
 
-#### User Story 11: Wyświetlenie mapy
+### User Story 11: Wyświetlenie mapy
 Jako użytkownik, chcę zobaczyć mapę po zalogowaniu, aby móc przeglądać i dodawać lokalizacje.
 
-#### User Story 12: Lokalizacja użytkownika
+### User Story 12: Lokalizacja użytkownika
 Jako użytkownik, chcę aby aplikacja pokazywała moją aktualną lokalizację, aby łatwo odnaleźć się na mapie.
 
-#### User Story 13: Kliknięcie na mapę
+### User Story 13: Kliknięcie na mapę
 Jako użytkownik, chcę móc kliknąć na mapę, aby dodać znacznik i rozpocząć dodawanie nowego miejsca.
 
-#### User Story 14: Pobieranie adresu
+### User Story 14: Pobieranie adresu
 Jako użytkownik, chcę aby aplikacja automatycznie pobierała adres lokalizacji, abym nie musiał go wpisywać ręcznie.
 
 ### User Story 15: Dodanie miejsca
 Jako użytkownik, chcę dodać nazwę i kategorię do lokalizacji, aby łatwiej ją odnaleźć później.
 
-#### User Story 16: Zapis do Firestore
+### User Story 16: Zapis do Firestore
 Jako użytkownik, chcę aby miejsca były zapisywane w chmurze, żebym nie stracił danych po zamknięciu aplikacji.
 
-#### User Story 17: Wyświetlanie miejsc na mapie
+### User Story 17: Wyświetlanie miejsc na mapie
 Jako użytkownik, chcę widzieć wszystkie moje zapisane miejsca jako znaczniki, abym mógł szybko je przeglądać.
 
-#### User Story 18: Kliknięcie w znacznik
+### User Story 18: Kliknięcie w znacznik
 Jako użytkownik, chcę kliknąć w znacznik i zobaczyć szczegóły miejsca (adres, kategoria, nazwa).
 
-#### User Story 19: Usuwanie miejsca
+### User Story 19: Usuwanie miejsca
 Jako użytkownik, chcę móc usunąć miejsce z mapy i bazy, gdy nie jest już potrzebne.
 
-#### User Story 20: Lista kategorii
+### User Story 20: Lista kategorii
 Jako użytkownik, chcę przeglądać dostępne kategorie, aby przypisać je do dodawanego miejsca.
 
-#### User Story 21: Dodawanie kategorii
+### User Story 21: Dodawanie kategorii
 Jako użytkownik, chcę móc dodać własną kategorię, jeśli nie znajduję odpowiedniej na liście.
 
-#### User Story 22: Usuwanie kategorii
+### User Story 22: Usuwanie kategorii
 Jako użytkownik, chcę móc usunąć kategorię, którą sam dodałem, aby uporządkować listę.
 
-#### User Story 23: Domyślne i własne kategorie
+### User Story 23: Domyślne i własne kategorie
 Jako użytkownik, chcę mieć dostęp do kategorii domyślnych i tych, które sam dodałem, ale nie widzieć cudzych.
 
-#### User Story 24: Obsługa błędów
+### User Story 24: Obsługa błędów
 Jako użytkownik, chcę otrzymać informację, gdy zapisanie lub pobranie danych się nie uda, aby wiedzieć, co poszło nie tak.
 
 ---
