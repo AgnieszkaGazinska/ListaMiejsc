@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/etNazwa"
+            android:hint="Nazwa miejsca"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"/>
+
+        <TextView
+            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wybierz kategorię:" />
+
+        <LinearLayout
+            android:id="@+id/llKategorieCheckboxy"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="12dp" />
+
+        <EditText
+            android:id="@+id/etNowaKategoria"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nowa kategoria" />
+
+        <Button
+            android:id="@+id/btnDodajKategorie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dodaj kategorię" />
+
+
+
+
+      <!--  <CheckBox
+            android:id="@+id/cbUlubione"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ulubione" />
+
+        <CheckBox
+            android:id="@+id/cbSklepy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sklepy" />
+
+        <CheckBox
+            android:id="@+id/cbRestauracje"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Restauracje" />
+
+        <CheckBox
+            android:id="@+id/cbKawiarnie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kawiarnie" />
+
+        <TextView
+            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lub stwórz nową kategorię:" />
+
+        <EditText
+            android:id="@+id/etNowaKategoria"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nowa kategoria" />
+-->
+    </LinearLayout>
+</ScrollView>
